@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Untitled-1 — Forest Visitation</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Space+Grotesk:wght@500;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --brand-yellow: #facc15;
+            --brand-yellow-solid: #fdd812;
+        }
+
+        body {
+            font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #0b0d0c;
+            color: #111;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        .font-mono-retro {
+            font-family: 'JetBrains Mono', 'Courier Prime', monospace;
+        }
+
+        /* 1970s analog photo color-grade for background */
+        .photo-grade {
+            filter: contrast(1.1) saturate(1.12) sepia(0.12) brightness(0.97);
+        }
+
+        /* Subtle film grain */
+        .film-grain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 60;
+            opacity: 0.035;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        /* Slide-up shop overlay */
+        #shopOverlay {
+            transition: transform 0.65s cubic-bezier(0.19, 1, 0.22, 1);
+            will-change: transform;
+        }
+        #shopOverlay.closed {
+            transform: translateY(105%);
+        }
+        #shopOverlay.open {
+            transform: translateY(0%);
+        }
+
+        /* UFO floating animation */
+        @keyframes ufoGentleHover {
+            0%, 100% { transform: translateY(0px) rotate(0.4deg); }
+            50% { transform: translateY(-7px) rotate(-0.8deg); }
+        }
+        .ufo-hover {
+            animation: ufoGentleHover 6s ease-in-out infinite;
+        }
+
+        /* Custom scrollbars inside shop */
+        #shopOverlay::-webkit-scrollbar {
+            width: 8px;
+        }
+        #shopOverlay::-webkit-scrollbar-track {
+            background: #eab308;
+        }
+        #shopOverlay::-webkit-scrollbar-thumb {
+            background: #ca8a04;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="relative min-h-screen w-full select-none">
+    <div class="film-grain"></div>
+
+    <!-- ========================================================
+         MAIN BACKGROUND VIEW (LANDING SCREEN - FOREST & UFO)
+         ======================================================== -->
+    <div class="fixed inset-0 w-full h-full overflow-hidden photo-grade z-0">
+        <!-- High-res Billy Meier UFO Forest Photograph -->
+        <img 
+            src="https://images.unsplash.com/photo-1511497584788-87676104235f?q=80&w=2400&auto=format&fit=crop" 
+            alt="Forest Background" 
+            class="absolute inset-0 w-full h-full object-cover object-center filter contrast-125 saturate-110 brightness-95"
+            onerror="this.src='https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=2000&auto=format&fit=crop'"
+        />
+
+        <!-- Procedural Forest & Meadow Overlay Layer matching original framing -->
+        <div class="absolute inset-0 bg-gradient-to-t from-emerald-950/70 via-transparent to-transparent pointer-events-none"></div>
+
+        <!-- The Floating UFO (Positioned right-center in the sky) -->
+        <div class="absolute top-[8%] sm:top-[12%] md:top-[11%] left-[44%] sm:left-[45%] md:left-[46%] w-[130px] sm:w-[170px] md:w-[195px] z-10 pointer-events-none ufo-hover">
+            <svg viewBox="0 0 240 100" class="w-full h-auto drop-shadow-[0_16px_12px_rgba(0,0,0,0.55)]">
+                <defs>
+                    <linearGradient id="domeGrad" x1="20%" y1="0%" x2="80%" y2="100%">
+                        <stop offset="0%" stop-color="#9aa29b" />
+                        <stop offset="40%" stop-color="#cbd3cc" />
+                        <stop offset="70%" stop-color="#69716c" />
+                        <stop offset="100%" stop-color="#3b423d" />
+                    </linearGradient>
+                    <linearGradient id="rimGrad" x1="0%" y1="50%" x2="100%" y2="50%">
+                        <stop offset="0%" stop-color="#2a302c" />
+                        <stop offset="25%" stop-color="#7d8780" />
+                        <stop offset="50%" stop-color="#d6ded8" />
+                        <stop offset="80%" stop-color="#555c56" />
+                        <stop offset="100%" stop-color="#1f2421" />
+                    </linearGradient>
+                    <linearGradient id="bellyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#181c19" />
+                        <stop offset="60%" stop-color="#343d37" />
+                        <stop offset="100%" stop-color="#0f1210" />
+                    </linearGradient>
+                </defs>
+                <g>
+                    <!-- Observation Cap -->
+                    <ellipse cx="120" cy="27" rx="27" ry="10" fill="url(#domeGrad)" />
+                    <ellipse cx="120" cy="23.5" rx="13" ry="5" fill="#525c56" opacity="0.9" />
+                    <!-- Sloping Hull -->
+                    <path d="M 38 49 C 55 33, 185 33, 202 49 Z" fill="url(#rimGrad)" />
+                    <!-- Central Disc Flange -->
+                    <ellipse cx="120" cy="51" rx="82" ry="8.5" fill="#4d5550" />
+                    <ellipse cx="120" cy="50.2" rx="80" ry="7.2" fill="url(#rimGrad)" />
+                    <path d="M 40 50.5 Q 120 57.5 200 50.5 Q 120 54.5 40 50.5 Z" fill="#1b201d" />
+                    <!-- Belly -->
+                    <path d="M 44 51.5 C 58 68, 182 68, 196 51.5 C 180 57, 60 57, 44 51.5 Z" fill="url(#bellyGrad)" />
+                    <ellipse cx="120" cy="62" rx="19" ry="5.5" fill="#141715" />
+                    <!-- Sheen Reflection -->
+                    <ellipse cx="98" cy="46" rx="18" ry="2" fill="#ffffff" opacity="0.4" transform="rotate(-3 98 46)" />
+                </g>
+            </svg>
+        </div>
+    </div>
+
+    <!-- ========================================================
+         HERO YELLOW CARD (HELM - HIBA EL MORABET)
+         ======================================================== -->
+    <div class="relative z-10 p-3 sm:p-5 md:p-6 w-full max-w-[430px] sm:max-w-[460px]">
+        <div class="bg-[#fdd812] text-black rounded-3xl p-5 sm:p-7 shadow-2xl border border-yellow-400 flex flex-col justify-between">
+            
+            <!-- Large Title -->
+            <h1 class="text-6xl sm:text-7xl md:text-8xl font-black tracking-tight leading-none mb-10 sm:mb-14">
+                Helm
+            </h1>
+
+            <!-- Subtitle / Information Row -->
+            <div class="flex justify-between items-end mb-8 font-mono-retro">
+                <div class="text-base sm:text-lg font-bold tracking-tight text-neutral-900">
+                    Hiba El Morabet
+                </div>
+                <div class="text-right text-xs sm:text-sm font-medium leading-snug text-neutral-900">
+                    Student<br>
+                    Visual<br>
+                    Design
+                </div>
+            </div>
+
+            <!-- Action Buttons: Work & Contact -->
+            <div class="grid grid-cols-2 gap-3 font-mono-retro text-xs">
+                <!-- Open Shop / Work Button -->
+                <button 
+                    id="openShopBtn"
+                    class="py-2.5 px-4 bg-transparent border border-black rounded-xl font-semibold hover:bg-black hover:text-[#fdd812] transition-colors duration-200 text-center cursor-pointer">
+                    Work
+                </button>
+
+                <!-- Contact Button (Opens right-hand popup card) -->
+                <button 
+                    id="openContactBtn"
+                    class="py-2.5 px-4 bg-transparent border border-black rounded-xl font-semibold hover:bg-black hover:text-[#fdd812] transition-colors duration-200 text-center cursor-pointer">
+                    Contact
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================
+         CONTACT POPUP CARD (IMAGE_6846E6.JPG SPECIFICATION)
+         Positioned on the right side with white background & clean pill Close button
+         ======================================================== -->
+    <div 
+        id="contactModal" 
+        class="fixed top-4 right-4 sm:top-6 sm:right-6 md:top-8 md:right-8 z-30 w-[92vw] sm:w-[380px] md:w-[440px] bg-white text-black rounded-xl shadow-2xl p-6 sm:p-8 border border-neutral-100 hidden opacity-0 transition-all duration-300 transform translate-y-2">
+        
+        <!-- Header with Close pill button -->
+        <div class="flex justify-end mb-4">
+            <button 
+                id="closeContactBtn"
+                class="px-3 py-0.5 border border-neutral-400 rounded-full text-[10px] sm:text-[11px] font-mono-retro hover:bg-neutral-100 transition-colors cursor-pointer">
+                Close
+            </button>
+        </div>
+
+        <!-- Contact Heading -->
+        <h2 class="text-xl sm:text-2xl font-bold font-sans tracking-tight mb-8 sm:mb-12">
+            Contact
+        </h2>
+
+        <!-- Contact Email -->
+        <div class="font-mono-retro text-sm sm:text-base tracking-tight text-neutral-900 break-all select-text pb-10">
+            <a 
+                href="mailto:elmorabethiba@gmail.com" 
+                class="hover:underline transition-all">
+                elmorabethiba@gmail.com
+            </a>
+        </div>
+    </div>
+
+    <!-- ========================================================
+         SLIDING SHOP OVERLAY (IMAGES 2, 3, 4)
+         Bright yellow background, photo cards with Product / Buy tags
+         ======================================================== -->
+    <div 
+        id="shopOverlay" 
+        class="closed fixed inset-0 z-50 w-full h-full bg-[#fdd812] text-black overflow-y-auto overflow-x-hidden p-3 sm:p-6 md:p-8">
+        
+        <!-- Sticky Shop Header: Cart & Close -->
+        <div class="sticky top-0 z-40 bg-[#fdd812]/95 backdrop-blur-sm pb-4 pt-1 mb-6 flex justify-between items-center border-b border-black/15">
+            <!-- Cart Button -->
+            <button 
+                id="cartBtn"
+                class="bg-white hover:bg-neutral-100 border border-neutral-300 shadow-sm text-neutral-900 font-mono-retro text-xs px-4 py-1.5 rounded-lg font-medium transition-transform active:scale-95 flex items-center gap-2">
+                <span>Cart</span>
+                <span id="cartCount" class="bg-black text-[#fdd812] px-1.5 py-0.2 rounded-full text-[10px] font-bold">0</span>
+            </button>
+
+            <!-- Close Shop Button -->
+            <button 
+                id="closeShopBtn"
+                class="bg-white hover:bg-neutral-100 border border-neutral-300 shadow-sm text-neutral-900 font-mono-retro text-xs px-5 py-1.5 rounded-lg font-medium transition-transform active:scale-95">
+                Close
+            </button>
+        </div>
+
+        <!-- Custom Add Image Banner / Instruction (for easy adding) -->
+        <div class="max-w-7xl mx-auto mb-6 flex justify-between items-center text-xs font-mono-retro">
+            <span class="text-neutral-800">CATALOGUE // EDITION 2026</span>
+            <button id="addImageBtn" class="underline text-black font-semibold hover:opacity-75">
+                + Add Image / Product
+            </button>
+        </div>
+
+        <!-- Dynamic Product Gallery Grid -->
+        <div id="productsGrid" class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6 pb-24">
+            <!-- Products will be generated dynamically from JavaScript array -->
+        </div>
+
+        <!-- Shop Footer Terms / Shipping -->
+        <footer class="max-w-7xl mx-auto border-t border-black/20 pt-6 pb-8 flex flex-wrap justify-between items-center font-mono-retro text-[11px] text-neutral-800">
+            <div>
+                © 2026 Untitled Archive. All rights reserved.
+            </div>
+            <div class="flex gap-4">
+                <span class="hover:underline cursor-pointer">Terms</span>
+                <span class="hover:underline cursor-pointer">Shipping</span>
+                <span class="hover:underline cursor-pointer">Contact</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ========================================================
+         MODAL FOR ADDING NEW PRODUCT / IMAGE URL
+         ======================================================== -->
+    <div id="addModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl font-mono-retro text-xs space-y-4">
+            <h3 class="text-base font-bold font-sans">Add Image / Product</h3>
+            <div>
+                <label class="block mb-1 font-bold">Image URL (link dyal soura):</label>
+                <input id="inputImgUrl" type="url" placeholder="https://..." class="w-full border border-neutral-300 p-2 rounded focus:outline-none focus:border-black">
+            </div>
+            <div>
+                <label class="block mb-1 font-bold">Product Title / Name:</label>
+                <input id="inputTitle" type="text" placeholder="Product 1" class="w-full border border-neutral-300 p-2 rounded focus:outline-none focus:border-black">
+            </div>
+            <div>
+                <label class="block mb-1 font-bold">Price ($):</label>
+                <input id="inputPrice" type="text" placeholder="60" class="w-full border border-neutral-300 p-2 rounded focus:outline-none focus:border-black">
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button id="cancelModalBtn" class="px-4 py-2 border rounded hover:bg-neutral-100">Cancel</button>
+                <button id="saveProductBtn" class="px-4 py-2 bg-[#fdd812] text-black font-bold rounded hover:bg-yellow-400">Add to Gallery</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification for Add To Cart -->
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-black text-[#fdd812] px-4 py-2 rounded-lg font-mono-retro text-xs shadow-xl opacity-0 pointer-events-none transition-opacity duration-300 z-50">
+        Item added to cart!
+    </div>
+
+    <!-- ========================================================
+         JAVASCRIPT LOGIC
+         ======================================================== -->
+    <script>
+        /* ========================================================
+           1. PRODUCT LIST / IMAGE LINKS (Edit or add images here)
+           Naqder anzid links dyal sawar hna direct!
+           ======================================================== */
+        let shopProducts = [
+            {
+                id: 1,
+                title: "Product 1",
+                price: "$60",
+                colSpan: "lg:col-span-4",
+                image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=900&auto=format&fit=crop" // editorial socks & sandals
+            },
+            {
+                id: 2,
+                title: "Product 2",
+                price: "$75",
+                colSpan: "lg:col-span-4",
+                image: "https://images.unsplash.com/photo-1544816155-12df9643f363?q=80&w=900&auto=format&fit=crop" // bucket & industrial hose
+            },
+            {
+                id: 3,
+                title: "Product 3",
+                price: "$60",
+                colSpan: "lg:col-span-4",
+                image: "https://images.unsplash.com/photo-1509967419530-da38b4704bc6?q=80&w=900&auto=format&fit=crop" // bathtub portrait
+            },
+            {
+                id: 4,
+                title: "Product 4",
+                price: "$90",
+                colSpan: "lg:col-span-6",
+                image: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?q=80&w=1000&auto=format&fit=crop" // artistic pattern
+            },
+            {
+                id: 5,
+                title: "Product 5",
+                price: "$110",
+                colSpan: "lg:col-span-6",
+                image: "https://images.unsplash.com/photo-1516962215378-7fa2e137ae93?q=80&w=1000&auto=format&fit=crop" // blue sculptural boots
+            },
+            {
+                id: 6,
+                title: "Product 6",
+                price: "$60",
+                colSpan: "lg:col-span-4",
+                image: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?q=80&w=900&auto=format&fit=crop" // breathing plant gadget
+            },
+            {
+                id: 7,
+                title: "Product 7",
+                price: "$60",
+                colSpan: "lg:col-span-8",
+                image: "https://images.unsplash.com/photo-1534361960057-19889db9621e?q=80&w=1200&auto=format&fit=crop" // dog in lifevest / boat
+            }
+        ];
+
+        let cartTotal = 0;
+
+        // Render products into grid
+        const productsGrid = document.getElementById('productsGrid');
+
+        function renderGallery() {
+            productsGrid.innerHTML = '';
+            shopProducts.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = `${item.colSpan} flex flex-col`;
+
+                card.innerHTML = `
+                    <div class="relative w-full rounded-2xl overflow-hidden bg-black/10 shadow-sm border border-black/10 group aspect-[4/3] sm:aspect-auto">
+                        <img 
+                            src="${item.image}" 
+                            alt="${item.title}" 
+                            loading="lazy"
+                            class="w-full h-full sm:h-[380px] md:h-[440px] object-cover object-center group-hover:scale-102 transition-transform duration-300"
+                            onerror="this.src='https://placehold.co/800x600/facc15/000000?text=Product+Image'"
+                        />
+                    </div>
+                    <!-- Bottom Tags: Product - $Price & Buy Button -->
+                    <div class="flex items-center gap-2 mt-2 font-mono-retro text-xs">
+                        <span class="bg-white border border-neutral-300 rounded-lg px-3 py-1 shadow-sm font-medium text-neutral-800">
+                            ${item.title} — ${item.price}
+                        </span>
+                        <button 
+                            onclick="addToCart('${item.title}')"
+                            class="bg-white hover:bg-neutral-100 active:scale-95 border border-neutral-300 rounded-lg px-3 py-1 shadow-sm font-medium text-neutral-800 transition-all cursor-pointer">
+                            Buy
+                        </button>
+                    </div>
+                `;
+                productsGrid.appendChild(card);
+            });
+        }
+
+        // Cart counter & Toast
+        const cartCountEl = document.getElementById('cartCount');
+        const toast = document.getElementById('toast');
+
+        function addToCart(title) {
+            cartTotal++;
+            cartCountEl.innerText = cartTotal;
+            showToast(`Added ${title} to Cart`);
+        }
+
+        function showToast(msg) {
+            toast.innerText = msg;
+            toast.classList.remove('opacity-0');
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+            }, 1800);
+        }
+
+        // Shop Overlay Slide In / Out
+        const shopOverlay = document.getElementById('shopOverlay');
+        const openShopBtn = document.getElementById('openShopBtn');
+        const closeShopBtn = document.getElementById('closeShopBtn');
+
+        openShopBtn.addEventListener('click', () => {
+            shopOverlay.classList.remove('closed');
+            shopOverlay.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        });
+
+        closeShopBtn.addEventListener('click', () => {
+            shopOverlay.classList.remove('open');
+            shopOverlay.classList.add('closed');
+            document.body.style.overflow = 'auto';
+        });
+
+        // Contact Modal Logic (Matching image_6846e6.jpg)
+        const openContactBtn = document.getElementById('openContactBtn');
+        const closeContactBtn = document.getElementById('closeContactBtn');
+        const contactModal = document.getElementById('contactModal');
+
+        function openContactPopup() {
+            contactModal.classList.remove('hidden');
+            setTimeout(() => {
+                contactModal.classList.remove('opacity-0', 'translate-y-2');
+                contactModal.classList.add('opacity-100', 'translate-y-0');
+            }, 10);
+        }
+
+        function closeContactPopup() {
+            contactModal.classList.add('opacity-0', 'translate-y-2');
+            contactModal.classList.remove('opacity-100', 'translate-y-0');
+            setTimeout(() => {
+                contactModal.classList.add('hidden');
+            }, 300);
+        }
+
+        openContactBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (contactModal.classList.contains('hidden')) {
+                openContactPopup();
+            } else {
+                closeContactPopup();
+            }
+        });
+
+        closeContactBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            closeContactPopup();
+        });
+
+        // Close when clicking outside of the contact modal
+        document.addEventListener('click', (e) => {
+            if (!contactModal.contains(e.target) && e.target !== openContactBtn && !contactModal.classList.contains('hidden')) {
+                closeContactPopup();
+            }
+        });
+
+        // Add Product Modal Handler
+        const addImageBtn = document.getElementById('addImageBtn');
+        const addModal = document.getElementById('addModal');
+        const cancelModalBtn = document.getElementById('cancelModalBtn');
+        const saveProductBtn = document.getElementById('saveProductBtn');
+        const inputImgUrl = document.getElementById('inputImgUrl');
+        const inputTitle = document.getElementById('inputTitle');
+        const inputPrice = document.getElementById('inputPrice');
+
+        addImageBtn.addEventListener('click', () => {
+            addModal.classList.remove('hidden');
+        });
+
+        cancelModalBtn.addEventListener('click', () => {
+            addModal.classList.add('hidden');
+        });
+
+        saveProductBtn.addEventListener('click', () => {
+            const url = inputImgUrl.value.trim();
+            const title = inputTitle.value.trim() || `Product ${shopProducts.length + 1}`;
+            const price = inputPrice.value.trim() ? `$${inputPrice.value.replace('$', '')}` : "$60";
+
+            if (!url) {
+                inputImgUrl.focus();
+                return;
+            }
+
+            shopProducts.push({
+                id: Date.now(),
+                title: title,
+                price: price,
+                colSpan: "lg:col-span-6",
+                image: url
+            });
+
+            renderGallery();
+            addModal.classList.add('hidden');
+            inputImgUrl.value = '';
+            inputTitle.value = '';
+            inputPrice.value = '';
+            showToast("New image added successfully!");
+        });
+
+        // Initial execution
+        renderGallery();
+    </script>
+</body>
+</html>
